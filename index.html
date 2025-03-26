@@ -9,6 +9,13 @@
         function initEmbeddedMessaging() {
             try {
                 embeddedservice_bootstrap.settings.language = 'en_US'; // For example, enter 'en' or 'en-US'
+
+                // Add the current page URL to pre-chat data
+                embeddedservice_bootstrap.settings.extraPrechatInfo = [{
+                    name: 'hostPageUrl',
+                    value: window.location.href,
+                    displayToAgent: true  // Agents will see this in the conversation
+                }];
     
                 embeddedservice_bootstrap.init(
                     '00DgL000000lTEf',
