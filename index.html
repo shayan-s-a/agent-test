@@ -4,18 +4,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
-    <h1>Agentforce Testing v3</h1>
+    <h1>Agentforce Testing v3.1</h1>
     <script type='text/javascript'>
         function initEmbeddedMessaging() {
             try {
                 embeddedservice_bootstrap.settings.language = 'en_US'; // For example, enter 'en' or 'en-US'
 
                 // Add the current page URL to pre-chat data
+                /*
                 embeddedservice_bootstrap.settings.extraPrechatInfo = [{
                     name: 'hostPageUrl',
                     value: window.location.href,
                     displayToAgent: true  // Agents will see this in the conversation
                 }];
+                */
+
+                // Wait for the Embedded Service Chat to be ready
+                window.addEventListener("onEmbeddedMessagingReady", function() {
+                    // Get current page URL
+                    var currentPageURL = window.location.href;
+
+                    // Set the URL as a pre-chat field
+                    embeddedservice_bootstrap.prechatAPI.setHiddenPrechatFields({
+                        "Current_Page_URL__c": currentPageURL
+                    });
+                });
     
                 embeddedservice_bootstrap.init(
                     '00DgL000000lTEf',
