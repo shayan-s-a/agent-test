@@ -24,6 +24,8 @@
                     // Get current page URL
                     var currentPageURL = window.location.href;
 
+                    console.log('Page URL:::: ' + currentPageURL);
+
                     // Set the URL as a pre-chat field
                     embeddedservice_bootstrap.prechatAPI.setHiddenPrechatFields({
                         "Current_Page_URL__c": currentPageURL
