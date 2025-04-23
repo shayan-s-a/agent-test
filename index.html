@@ -6,53 +6,47 @@
 <body>
     <h1>Agentforce Testing v4.0</h1>
     <p id="ip-address"></p>
-    <script type='text/javascript'>
+
+    <script type="text/javascript">
+        // Returns a Promise that resolves with the user's IP
+        function getIPAddress() {
+            return fetch("https://ipinfo.io/json")
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById("ip-address").textContent = `IP Address: ${data.ip}`;
+                    return data.ip;
+                })
+                .catch(error => {
+                    console.error("Error fetching IP address:", error);
+                    document.getElementById("ip-address").textContent = "Unable to retrieve IP address.";
+                    return "";
+                });
+        }
+
+        // Waits for the Embedded Messaging to be ready
+        function waitForEmbeddedMessagingReady() {
+            return new Promise(resolve => {
+                window.addEventListener("onEmbeddedMessagingReady", resolve);
+            });
+        }
+
         function initEmbeddedMessaging() {
             try {
-                //Fetch IP Address
-                var ipAddress;
-                document.addEventListener("DOMContentLoaded", function() {
-                    // Fetch the IP address from the API
-                    fetch("https://ipinfo.io/json") 
-                        .then(response => response.json())
-                        .then(data => {
-                            // Display the IP address on the screen
-                            document.getElementById("ip-address").textContent = 
-                                `IP Address: ${data.ip}`;
-                            ipAddress = data.ip;
-                        })
-                        .catch(error => {
-                            console.error("Error fetching IP address:", error);
-                            document.getElementById("ip-address").textContent = 
-                                "Unable to retrieve IP address.";
+                embeddedservice_bootstrap.settings.language = 'en_US';
+
+                Promise.all([getIPAddress(), waitForEmbeddedMessagingReady()])
+                    .then(([ipAddress]) => {
+                        const currentPageURL = window.location.href;
+
+                        console.log("Page URL:::: " + currentPageURL);
+                        console.log("IP Address:::: " + ipAddress);
+
+                        embeddedservice_bootstrap.prechatAPI.setHiddenPrechatFields({
+                            "Current_Page_URL": currentPageURL,
+                            "IP_Address": ipAddress
                         });
-                });
-                embeddedservice_bootstrap.settings.language = 'en_US'; // For example, enter 'en' or 'en-US'
-
-                // Add the current page URL to pre-chat data
-                /*
-                embeddedservice_bootstrap.settings.extraPrechatInfo = [{
-                    name: 'hostPageUrl',
-                    value: window.location.href,
-                    displayToAgent: true  // Agents will see this in the conversation
-                }];
-                
-*/
-                // Wait for the Embedded Service Chat to be ready
-                window.addEventListener("onEmbeddedMessagingReady", function() {
-                    // Get current page URL
-                    var currentPageURL = window.location.href;
-
-                    console.log('Page URL:::: ' + currentPageURL);
-                    console.log('Page URL:::: ' + ipAddress);
-
-                    // Set the URL as a pre-chat field
-                    embeddedservice_bootstrap.prechatAPI.setHiddenPrechatFields({
-                        "Current_Page_URL": currentPageURL,
-                        "IP_Address": ipAddress
                     });
-                });
-    
+
                 embeddedservice_bootstrap.init(
                     '00DgL000000lTEf',
                     'Agentforce_Test',
@@ -64,8 +58,12 @@
             } catch (err) {
                 console.error('Error loading Embedded Messaging: ', err);
             }
-        };
+        }
     </script>
-    <script type='text/javascript' src='https://orgfarm-ee80b2920b-dev-ed.develop.my.site.com/ESWAgentforceTest1742373017342/assets/js/bootstrap.min.js' onload='initEmbeddedMessaging()'></script>
-    
+
+    <script 
+        type="text/javascript" 
+        src="https://orgfarm-ee80b2920b-dev-ed.develop.my.site.com/ESWAgentforceTest1742373017342/assets/js/bootstrap.min.js" 
+        onload="initEmbeddedMessaging()">
+    </script>
 </body>
