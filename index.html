@@ -7,46 +7,48 @@
     <h1>Agentforce Testing v4.0</h1>
     <p id="ip-address"></p>
 
-    <script type="text/javascript">
-        // Returns a Promise that resolves with the user's IP
-        function getIPAddress() {
-            return fetch("https://ipinfo.io/json")
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById("ip-address").textContent = `IP Address: ${data.ip}`;
-                    return data.ip;
-                })
-                .catch(error => {
-                    console.error("Error fetching IP address:", error);
-                    document.getElementById("ip-address").textContent = "Unable to retrieve IP address.";
-                    return "";
-                });
-        }
-
-        // Waits for the Embedded Messaging to be ready
-        function waitForEmbeddedMessagingReady() {
-            return new Promise(resolve => {
-                window.addEventListener("onEmbeddedMessagingReady", resolve);
-            });
-        }
-
+    <script type='text/javascript'>
         function initEmbeddedMessaging() {
             try {
-                embeddedservice_bootstrap.settings.language = 'en_US';
-
-                Promise.all([getIPAddress(), waitForEmbeddedMessagingReady()])
-                    .then(([ipAddress]) => {
+                let ipAddress = '';
+                let isChatReady = false;
+    
+                // Store both events' states
+                function trySetPrechatFields() {
+                    if (ipAddress && isChatReady) {
                         const currentPageURL = window.location.href;
-
-                        console.log("Page URL:::: " + currentPageURL);
-                        console.log("IP Address:::: " + ipAddress);
-
+    
+                        console.log('Setting Prechat Fields...');
+                        console.log('Page URL:', currentPageURL);
+                        console.log('IP Address:', ipAddress);
+    
                         embeddedservice_bootstrap.prechatAPI.setHiddenPrechatFields({
                             "Current_Page_URL": currentPageURL,
                             "IP_Address": ipAddress
                         });
+                    }
+                }
+    
+                // Fetch IP Address
+                fetch("https://ipinfo.io/json")
+                    .then(response => response.json())
+                    .then(data => {
+                        ipAddress = data.ip;
+                        document.getElementById("ip-address").textContent = `IP Address: ${data.ip}`;
+                        trySetPrechatFields();
+                    })
+                    .catch(error => {
+                        console.error("Error fetching IP address:", error);
                     });
-
+    
+                // Embedded Messaging Ready Event
+                window.addEventListener("onEmbeddedMessagingReady", function () {
+                    isChatReady = true;
+                    trySetPrechatFields();
+                });
+    
+                // Init
+                embeddedservice_bootstrap.settings.language = 'en_US';
                 embeddedservice_bootstrap.init(
                     '00DgL000000lTEf',
                     'Agentforce_Test',
@@ -56,10 +58,11 @@
                     }
                 );
             } catch (err) {
-                console.error('Error loading Embedded Messaging: ', err);
+                console.error('Error loading Embedded Messaging:', err);
             }
-        }
+        };
     </script>
+    
 
     <script 
         type="text/javascript" 
